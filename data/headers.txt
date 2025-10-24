@@ -1,0 +1,25 @@
+1 year
+2 month
+3 day
+4 hour
+5 minute
+6 second
+7 event ID
+8 latitude
+9 longitude
+10 depth
+11 magnitude
+12 strike
+13 dip
+14 rake
+15 1st nodal plane uncertainty
+16 2nd nodal plane uncertainty
+17 number of polarities
+18 polarity misfit
+19 number of S/P amplitude ratio
+20 average log10(S/P) amplitude ratio misfit
+21 focal mechanism quality
+22 probability of solution close to real solution
+23 azimuth gap
+24 take-off angle gap
+25 station distribution ratio (STDR)
