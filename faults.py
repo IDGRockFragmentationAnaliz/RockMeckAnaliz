@@ -24,6 +24,10 @@ class Faults:
         self.df["x"] = cloud.points[:, 0]
         self.df["y"] = cloud.points[:, 1]
 
+    def compute_radius(self):
+        d_sgm = 6.75  # MPa
+        self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)/ 1000
+
     @classmethod
     def load_data(cls):
         headers = load_headers()
@@ -32,7 +36,13 @@ class Faults:
         obj = cls(df, "EPSG:4326")
         return obj
 
+    @staticmethod
+    def _get_disk_radius(m, d_sgm=1.0):
+        return np.cbrt(7 / (16 * 6.75)) * 10 ** (0.5 * (m + 6)) * 10 ** (-2)
+
+
 def load_headers():
     with open("data/headers.txt", 'r', encoding='utf-8') as f:
         headers = [line.strip().split(' ', 1)[1] for line in f]
     return headers
+
