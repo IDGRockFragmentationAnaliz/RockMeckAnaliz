@@ -8,6 +8,12 @@ pip install pyvista[all] # библиотека 3д геометрии и ото
 pip install pyproj # библиотека георграфических проэкций
 ```
 
+$\phi$ - strike
+
+$\delta$ - dip
+
+$\lambda$ - rake
+
 $$
 \mathbf{n} = (\sin(\text{dip}) \sin(\text{strike}), -\sin(\text{dip}) \cos(\text{strike}), \cos(\text{dip}))
 $$
