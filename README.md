@@ -6,6 +6,7 @@ pip install pandas
 pip install matplotlib
 pip install pyvista[all] # библиотека 3д геометрии и отображения
 pip install pyproj # библиотека георграфических проэкций
+pip install scikit-spatial
 ```
 
 $\phi$ - strike

@@ -4,8 +4,8 @@ import numpy as np
 from pathlib import Path
 from matplotlib import pyplot as plt
 from faults import Faults
-import shapely
 import pyproj
+
 
 def main():
     vectors()
@@ -27,7 +27,11 @@ def vectors():
     y = df["y"]
     d = df["depth"]
     r = df["r"]
-
+    
+    
+    
+    return
+    
     # print(r)
     # return
     # mask = r > 10

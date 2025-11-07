@@ -4,6 +4,7 @@ from pathlib import Path
 import pyvista as pv
 import pyproj
 
+
 class Faults:
     def __init__(self, df, crs):
         self.df: pd.DataFrame = df
@@ -23,11 +24,22 @@ class Faults:
         cloud.transform(transformer, inplace=True)
         self.df["x"] = cloud.points[:, 0]
         self.df["y"] = cloud.points[:, 1]
-
+    
     def compute_radius(self):
         d_sgm = 6.75  # MPa
         self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)/ 1000
-
+    
+    def compute_cut(self, h1):
+        x = self.df["x"]
+        y = self.df["y"]
+        h = self.df["depth"]
+        r = self.df["r"]
+        
+        d2 = r*r - (h - h_1)**2
+        
+        
+        
+    
     @classmethod
     def load_data(cls):
         headers = load_headers()
