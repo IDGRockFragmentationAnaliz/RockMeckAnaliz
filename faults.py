@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 import pyvista as pv
 import pyproj
+from tools.intersection import circle_intersect
 
 
 class Faults:
@@ -22,24 +23,32 @@ class Faults:
         transformer.translate([-x0, -y0, 0])
         transformer.rotate_z(strike)
         cloud.transform(transformer, inplace=True)
+        # Корректировка strike (в градусах)
+        self.df["strike"] = (self.df["strike"] - strike) % 360
+        # Нормализация strike в диапазон [0, 360) для consistency
         self.df["x"] = cloud.points[:, 0]
         self.df["y"] = cloud.points[:, 1]
     
     def compute_radius(self):
         d_sgm = 6.75  # MPa
-        self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)/ 1000
+        self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
     
     def compute_cut(self, h1):
-        x = self.df["x"]
-        y = self.df["y"]
-        h = self.df["depth"]
-        r = self.df["r"]
+        df = self.df[self.df["r"] > 100]
+        x = df["x"].to_numpy()
+        y = df["y"].to_numpy()
+        h = df["depth"].to_numpy()
+        r = df["r"].to_numpy()
+        dip = np.radians(df["dip"].to_numpy())
+        strike = np.radians(df["strike"].to_numpy())
+        n = np.column_stack(self._get_normal(dip, strike))
+        point = np.column_stack((x, y, h))
+        points1, points2 = circle_intersect(h1, point, n, 3*r)
+        point_matrix = np.column_stack((points1, points2))
+        np.save('temp/point_matrix.npy', point_matrix)
+        #d2 = r*r - (h - h_1)**2
         
-        d2 = r*r - (h - h_1)**2
         
-        
-        
-    
     @classmethod
     def load_data(cls):
         headers = load_headers()
@@ -51,6 +60,13 @@ class Faults:
     @staticmethod
     def _get_disk_radius(m, d_sgm=1.0):
         return np.cbrt(7 / (16 * 6.75)) * 10 ** (0.5 * (m + 6)) * 10 ** (-2)
+    
+    @staticmethod
+    def _get_normal(dip, strike):
+        nx = np.sin(dip) * np.sin(strike)
+        ny = -np.sin(dip) * np.cos(strike)
+        nz = np.cos(dip)
+        return nx, ny, nz
 
 
 def load_headers():
