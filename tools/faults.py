@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 import pyvista as pv
 import pyproj
-from tools.intersection import circle_intersect
+from tools.intersection import circle_intersect_horizontal_plane, circle_vertical_x_plane
 
 
 class Faults:
@@ -33,26 +33,34 @@ class Faults:
         d_sgm = 6.75  # MPa
         self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
     
-    def compute_cut(self, h1):
-        df = self.df[self.df["r"] > 100]
+    def get_circles(self):
+        df = self.df[self.df["r"] > 0]
         x = df["x"].to_numpy()
         y = df["y"].to_numpy()
-        h = df["depth"].to_numpy()
-        r = df["r"].to_numpy()
+        h = df["depth"].to_numpy() * 1000
+        radii = df["r"].to_numpy()
         dip = np.radians(df["dip"].to_numpy())
         strike = np.radians(df["strike"].to_numpy())
-        n = np.column_stack(self._get_normal(dip, strike))
-        point = np.column_stack((x, y, h))
-        points1, points2 = circle_intersect(h1, point, n, 3*r)
+        normals = np.column_stack(self._get_normal(dip, strike))
+        centers = np.column_stack((x, y, h))
+        return centers, normals, radii
+    
+    def compute_horizontal_cut(self, h1):
+        centers, normals, radii = self.get_circles()
+        points1, points2 = circle_intersect_horizontal_plane(h1, centers, normals, 3 * radii)
         point_matrix = np.column_stack((points1, points2))
-        np.save('temp/point_matrix.npy', point_matrix)
-        #d2 = r*r - (h - h_1)**2
+        np.save('../temp/point_matrix.npy', point_matrix)
         
-        
+    def compute_vertical_cut(self, pos_x):
+        centers, normals, radii = self.get_circles()
+        points1, points2 = circle_vertical_x_plane(pos_x, centers, normals, 3 * radii)
+        point_matrix = np.column_stack((points1, points2))
+        np.save('../temp/point_matrix.npy', point_matrix)
+    
     @classmethod
     def load_data(cls):
         headers = load_headers()
-        data_path = Path(".") / "data/CSAF_M1.focmec_pub"
+        data_path = Path("..") / "data/CSAF_M1.focmec_pub"
         df = pd.read_csv(data_path, sep=" ", names=headers)
         obj = cls(df, "EPSG:4326")
         return obj
@@ -70,7 +78,7 @@ class Faults:
 
 
 def load_headers():
-    with open("data/headers.txt", 'r', encoding='utf-8') as f:
+    with open("../data/headers.txt", 'r', encoding='utf-8') as f:
         headers = [line.strip().split(' ', 1)[1] for line in f]
     return headers
 

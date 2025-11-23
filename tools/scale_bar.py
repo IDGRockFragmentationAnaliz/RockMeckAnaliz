@@ -4,7 +4,7 @@ import cv2
 
 def add_scale_bar(image: np.ndarray, scale_length: int = None, position: tuple[int, int] = None,
                   line_thickness: int = None, text_size: float = None, text_thickness: int = None,
-                  margin_percent: float = 0.05, top_margin_percent: float = 0.01) -> np.ndarray:
+                  left_margin_percent: float = 0.05, top_margin_percent: float = 0.01) -> np.ndarray:
     """
     Добавляет размерную линейку с подписью на изображение, автоматически адаптируясь к его размеру.
     Текст занимает ровно 5% от высоты изображения. Линия отображается как прямоугольная полоса без искажений.
@@ -15,7 +15,7 @@ def add_scale_bar(image: np.ndarray, scale_length: int = None, position: tuple[i
     :param line_thickness: Толщина линии. Если None, автоматически пропорционально высоте текста.
     :param text_size: Размер шрифта подписи. Если None, автоматически для 5% высоты.
     :param text_thickness: Толщина текста. Если None, автоматически пропорционально высоте текста.
-    :param margin_percent: Процент отступа слева и справа от ширины (по умолчанию 0.05).
+    :param left_margin_percent: Процент отступа слева и справа от ширины (по умолчанию 0.05).
     :param top_margin_percent: Процент отступа сверху от высоты (по умолчанию 0.01).
     :return: Модифицированное изображение (np.ndarray).
     """
@@ -62,7 +62,7 @@ def add_scale_bar(image: np.ndarray, scale_length: int = None, position: tuple[i
     
     # Автоматическая позиция с процентными отступами
     if position is None:
-        left_margin = int(margin_percent * width)
+        left_margin = int(left_margin_percent * width)
         top_margin = int(top_margin_percent * height)
         x_start = left_margin
         y_start = top_margin + int(0.1 * text_height) + line_thickness // 2  # Центрирование толщины
@@ -70,7 +70,7 @@ def add_scale_bar(image: np.ndarray, scale_length: int = None, position: tuple[i
         x_start, y_start = position
     
     # Корректировка длины с учетом правого отступа
-    right_margin = int(margin_percent * width)
+    right_margin = int(left_margin_percent * width)
     x_end = min(x_start + scale_length, width - right_margin)
     scale_length = x_end - x_start
     y_end = y_start

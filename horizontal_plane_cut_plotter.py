@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from tools.scale_bar import add_scale_bar
+from tools.scanner import scan_and_save_images
 
 
 def main():
@@ -9,8 +10,8 @@ def main():
     points2 = points[:,3:5]
     line_len = np.sum((points1 - points2)**2, axis=1)
     
-    xmin = np.min(np.column_stack((points1[:,0], points2[:,0])))
-    xmax = np.max(np.column_stack((points1[:,0], points2[:,0])))
+    xmin = np.min(np.column_stack((points1[:, 0], points2[:,0])))
+    xmax = np.max(np.column_stack((points1[:, 0], points2[:,0])))
     ymin = np.min(np.column_stack((points1[:, 1], points2[:, 1])))
     ymax = np.max(np.column_stack((points1[:, 1], points2[:, 1])))
     
@@ -32,15 +33,8 @@ def main():
         # Отрисовка линии (белый цвет, толщина 1)
         cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), 11)
     
-    image1 = image[0:10000, :]
-    image1 = add_scale_bar(image1)
-    # Сохранение изображения
-    cv2.imwrite("pictures/test1.png", image1)
-    
-    
-    cv2.imwrite("pictures/test2.png", image[10000:20000, :])
-    cv2.imwrite("pictures/test3.png", image[20000:30000, :])
-    
+    scan_and_save_images(image)
+
 
 
 if __name__ == '__main__':
