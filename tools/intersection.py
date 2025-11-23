@@ -1,41 +1,37 @@
+import numpy as np
 from skspatial.objects import Sphere, Line, Plane
 from skspatial.plotting import plot_2d
 from skspatial.plotting import plot_3d
+from tqdm import tqdm
 
 
-def main():
-    plane_cut = Plane([0, 0, 1], [0, 0, 1])
-    plane = Plane([0, 0, 0], [1, 0, 1])
-    
-    line = plane_cut.intersect_plane(plane)
-    sphere = Sphere([0, 0, 0], 1)
-    point_a, point_b = sphere.intersect_line(line)
-    print(point_a, point_b)
-
-
-def circle_intersect(h1, x, y, h, n, r):
+def circle_intersect(h1, point, n, r):
+    points_1 = []
+    points_2 = []
     plane_cut = Plane([0, 0, h1], [0, 0, 1])
-    plane = Plane([x, y, h], n)
+    for _point, _n, _r in tqdm(zip(point, n, r), total=len(point)):
+        p1, p2 = one_circle_intersect_plane(plane_cut, _point, _n, _r)
+        if p1 is not None:
+            points_1.append(p1)
+            points_2.append(p2)
+    points_1 = np.array(points_1)
+    points_2 = np.array(points_2)
+    return points_1, points_2
+    
+    
+def one_circle_intersect_plane(plane_cut: Plane, point: np.ndarray, normal: np.ndarray, radius):
+    dist = plane_cut.distance_point(point)
+    if dist > radius:
+        return None, None
+    plane = Plane(point, normal)
     # Линия пересечения сечения h1 и плоскости скольжения
     line = plane_cut.intersect_plane(plane)
     # Сфера радиуса окружности плоскости скложения
-    sphere = Sphere([x, y, h], r)
-    
+    sphere = Sphere(point, radius)
     # Предварительная проверка расстояния
     dist = line.distance_point(sphere.point)
     if dist > sphere.radius:
-        return None
-    
-    # точки пересечения c диском
+        return None, None
+    # Точки пересечения c диском
     point_a, point_b = sphere.intersect_line(line)
     return point_a, point_b
-    
-    
-if __name__ == '__main__':
-    main()
-
-#
-# circle = Circle([0, 0], 5)
-# line = Line([0, 0], [1, 1])
-#
-# point_a, point_b = circle.intersect_line(line)
