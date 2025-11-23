@@ -16,8 +16,7 @@ def main():
     ymax = np.max(np.column_stack((points1[:, 1], points2[:, 1])))
     
     height, width = int((ymax - ymin)/2), int((xmax - xmin)/2)
-    #height, width = 800, 600
-    print(height, width)
+    bbox = (xmin, xmax, ymin, ymax)
     
     # Создание нулевого изображения (чёрный фон)
     image = np.zeros((height, width, 3), dtype=np.uint8)
@@ -33,7 +32,7 @@ def main():
         # Отрисовка линии (белый цвет, толщина 1)
         cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), 11)
     
-    scan_and_save_images(image)
+    scan_and_save_images(image, bbox=bbox)
 
 
 
