@@ -18,7 +18,8 @@ def vectors():
     faults.to_cartesian(lon_0, lat_0, strike_0)
     faults.compute_radius()
     
-    faults.compute_horizontal_cut(6000)
+    #faults.compute_horizontal_cut(6000)
+    faults.compute_vertical_cut(127500)
     
     
 if __name__ == '__main__':

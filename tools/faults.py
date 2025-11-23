@@ -55,12 +55,12 @@ class Faults:
         centers, normals, radii = self.get_circles()
         points1, points2 = circle_vertical_x_plane(pos_x, centers, normals, 3 * radii)
         point_matrix = np.column_stack((points1, points2))
-        np.save('../temp/point_matrix.npy', point_matrix)
+        np.save('./temp/point_matrix_cut_x.npy', point_matrix)
     
     @classmethod
     def load_data(cls):
         headers = load_headers()
-        data_path = Path("..") / "data/CSAF_M1.focmec_pub"
+        data_path = Path(".") / "data/CSAF_M1.focmec_pub"
         df = pd.read_csv(data_path, sep=" ", names=headers)
         obj = cls(df, "EPSG:4326")
         return obj
@@ -75,10 +75,9 @@ class Faults:
         ny = -np.sin(dip) * np.cos(strike)
         nz = np.cos(dip)
         return nx, ny, nz
-
-
+    
 def load_headers():
-    with open("../data/headers.txt", 'r', encoding='utf-8') as f:
+    with open("./data/headers.txt", 'r', encoding='utf-8') as f:
         headers = [line.strip().split(' ', 1)[1] for line in f]
     return headers
 
