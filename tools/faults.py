@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 import pyvista as pv
 import pyproj
-from tools.intersection import circle_intersect_horizontal_plane, circle_vertical_x_plane
+from tools.intersection import circle_intersect_horizontal_plane, circle_vertical_y_plane
 
 
 class Faults:
@@ -51,11 +51,12 @@ class Faults:
         point_matrix = np.column_stack((points1, points2))
         np.save('../temp/point_matrix.npy', point_matrix)
         
-    def compute_vertical_cut(self, pos_x):
+    def compute_vertical_cut(self, pos_y):
         centers, normals, radii = self.get_circles()
-        points1, points2 = circle_vertical_x_plane(pos_x, centers, normals, 3 * radii)
+        points1, points2 = circle_vertical_y_plane(pos_y, centers, normals, 3 * radii)
         point_matrix = np.column_stack((points1, points2))
-        np.save('./temp/point_matrix_cut_x.npy', point_matrix)
+        print(point_matrix.shape)
+        np.save('./temp/point_matrix_cut_y.npy', point_matrix)
     
     @classmethod
     def load_data(cls):

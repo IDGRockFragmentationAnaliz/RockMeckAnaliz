@@ -13,10 +13,10 @@ def circle_intersect_horizontal_plane(h1, point, n, r):
     return points_1, points_2
 
 
-def circle_vertical_x_plane(pos_x, point, n, r):
+def circle_vertical_y_plane(pos_y, point, n, r):
     points_1, points_2 = circle_intersect_plane(
-        [pos_x, 0, 0],
-        [1, 0, 0], point, n, r
+        [0, pos_y, 0],
+        [0, 1, 0], point, n, r
     )
     return points_1, points_2
 

@@ -17,6 +17,14 @@ def main():
     
     height, width = int((ymax - ymin)/2), int((xmax - xmin)/2)
     bbox = (xmin, xmax, ymin, ymax)
+    def y_line(image, y_target):
+        y_target = 127500
+        if ymin <= y_target <= ymax:
+            y_img = int((y_target - ymin) / (ymax - ymin) * (height - 1))
+            # Отрисовка красной горизонтальной линии (от левого до правого края)
+            cv2.line(image, (0, y_img), (width - 1, y_img), (0, 0, 255), 11)
+        else:
+            print("Предупреждение: y=127500 выходит за пределы bounding box по y.")
     
     # Создание нулевого изображения (чёрный фон)
     image = np.zeros((height, width, 3), dtype=np.uint8)
@@ -32,6 +40,7 @@ def main():
         # Отрисовка линии (белый цвет, толщина 1)
         cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), 11)
     
+    y_line(image, 127500)
     scan_and_save_images(image, bbox=bbox)
 
 
