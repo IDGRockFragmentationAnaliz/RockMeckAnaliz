@@ -4,6 +4,7 @@ from pathlib import Path
 import pyvista as pv
 import pyproj
 from tools.intersection import circle_intersect_horizontal_plane, circle_vertical_y_plane
+import cartopy.crs as ccrs
 
 
 class Faults:
@@ -29,6 +30,18 @@ class Faults:
         self.df["x"] = cloud.points[:, 0]
         self.df["y"] = cloud.points[:, 1]
     
+    def to_projection(self, projection: ccrs.Projection):
+        transformer = pyproj.Transformer.from_proj(
+            self.crs,  # Исходная система
+            projection,  # Целевая проекция
+            always_xy=True  # Возвращать x, y в порядке долгота, широта
+        )
+        lat = self.df["latitude"].to_numpy()
+        lon = self.df["longitude"].to_numpy()
+        x, y = transformer.transform(lon, lat)
+        self.df["x"] = x
+        self.df["y"] = y
+        
     def compute_radius(self):
         d_sgm = 6.75  # MPa
         self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
@@ -63,7 +76,7 @@ class Faults:
         headers = load_headers()
         data_path = Path(".") / "data/CSAF_M1.focmec_pub"
         df = pd.read_csv(data_path, sep=" ", names=headers)
-        obj = cls(df, "EPSG:4326")
+        obj = cls(df, "WGS84")
         return obj
 
     @staticmethod
