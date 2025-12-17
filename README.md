@@ -1,4 +1,5 @@
 # RockMeckAnaliz
+Данные фокальных механизмов дотупны по [ссылке](https://data.mendeley.com/datasets/34szj3jm6k/1).
 
 ```
 pip install numpy
