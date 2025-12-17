@@ -38,10 +38,14 @@ class Faults:
         )
         lat = self.df["latitude"].to_numpy()
         lon = self.df["longitude"].to_numpy()
+        strikes = self.df["strike"].to_numpy()
+
         x, y = transformer.transform(lon, lat)
         self.df["x"] = x
         self.df["y"] = y
-        
+        self.df["strike"] = self._angle_transform(lat, lon, strikes, x, y, transformer)
+
+
     def compute_radius(self):
         d_sgm = 6.75  # MPa
         self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
@@ -62,7 +66,7 @@ class Faults:
         centers, normals, radii = self.get_circles()
         points1, points2 = circle_intersect_horizontal_plane(h1, centers, normals, 3 * radii)
         point_matrix = np.column_stack((points1, points2))
-        np.save('../temp/point_matrix.npy', point_matrix)
+        np.save('./temp/point_matrix.npy', point_matrix)
         
     def compute_vertical_cut(self, pos_y):
         centers, normals, radii = self.get_circles()
@@ -82,13 +86,36 @@ class Faults:
     @staticmethod
     def _get_disk_radius(m, d_sgm=1.0):
         return np.cbrt(7 / (16 * 6.75)) * 10 ** (0.5 * (m + 6)) * 10 ** (-2)
-    
+
+
     @staticmethod
     def _get_normal(dip, strike):
         nx = np.sin(dip) * np.sin(strike)
         ny = -np.sin(dip) * np.cos(strike)
         nz = np.cos(dip)
         return nx, ny, nz
+
+
+    @staticmethod
+    def _angle_transform(lat, lon, strikes, x, y, transformer):
+        length = 0.001  # небольшое смещение в градусах
+
+        # Вычисляем конечные точки векторов направления
+        lon_end = lon + length * np.sin(np.radians(strikes))
+        lat_end = lat + length * np.cos(np.radians(strikes))
+
+        # Преобразуем конечные точки в новую проекцию
+        x_end, y_end = transformer.transform(lon_end, lat_end)
+
+        # Вычисляем новые углы направления в новой системе координат
+        dx = x_end - x
+        dy = y_end - y
+
+        new_strikes = np.degrees(np.arctan2(dx, dy))
+
+        return new_strikes % 360
+
+
     
 def load_headers():
     with open("./data/headers.txt", 'r', encoding='utf-8') as f:
