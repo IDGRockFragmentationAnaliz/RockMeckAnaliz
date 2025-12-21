@@ -15,8 +15,10 @@ def main():
     ymin: float = np.min(np.column_stack((points1[:, 1], points2[:, 1])))
     ymax: float = np.max(np.column_stack((points1[:, 1], points2[:, 1])))
     
-    height, width = int((ymax - ymin)/2), int((xmax - xmin)/2)
+    scale = 0.25
+    height, width = int((ymax - ymin)*scale), int((xmax - xmin)*scale)
     bbox = (xmin, xmax, ymin, ymax)
+    
     #
     
     # Создание нулевого изображения (чёрный фон)
@@ -31,9 +33,16 @@ def main():
         x2 = int((p2[0] - xmin) / (xmax - xmin) * (width - 1))
         y2 = int((p2[1] - ymin) / (ymax - ymin) * (height - 1))
         # Отрисовка линии (белый цвет, толщина 1)
-        cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), 11)
-
-    scan_and_save_images(image, bbox=bbox)
+        cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), int(10*scale+1))
+    
+    from pyrocksegmentation.basic_segmentator import Segmentator
+    image1d,_,_ = cv2.split(image)
+    segmentator = Segmentator(image1d)
+    segmentator.run(extend=False)
+    
+    image = segmentator.get_segment_image()
+    #print(image.shape)
+    scan_and_save_images(image, step=5000, bbox=bbox)
 
 
 

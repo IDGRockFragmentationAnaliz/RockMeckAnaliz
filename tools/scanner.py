@@ -5,18 +5,19 @@ from .scale_bar import add_scale_bar
 import cv2
 from matplotlib import patheffects
 
+
 def scan_and_save_images(image: np.ndarray,
                          step: int = 10000,
                          bbox: tuple = (-1, 1, -1, 1),
                          output_dir: str = "pictures",
                          prefix: str = "test_2_") -> int:
     """
-    Сканирует изображение по шагам, применяет размерную линейку к сегментам и сохраняет файлы
+    Сканирует изображение по шагам по ширине, применяет размерную линейку к сегментам и сохраняет файлы
     с использованием Matplotlib для отображения и сохранения.
 
     :param image: Исходное изображение (np.ndarray, формат BGR).
     :param bbox: (xmin, xmax, ymin, ymax) — полный диапазон для всего изображения.
-    :param step: Размер сегмента по высоте в пикселях.
+    :param step: Размер сегмента по ширине в пикселях.
     :param output_dir: Директория для сохранения.
     :param prefix: Префикс имени файлов.
     :return: Количество сохранённых файлов.
@@ -25,32 +26,32 @@ def scan_and_save_images(image: np.ndarray,
         raise ValueError("Изображение должно быть в формате BGR с тремя каналами.")
     
     height, width = image.shape[:2]
-    num_segments = (height + step - 1) // step  # Округление вверх для остатка
+    num_segments = (width + step - 1) // step  # Округление вверх для остатка
     
     output_path = Path(output_dir)
     output_path.mkdir(exist_ok=True)
     saved_count = 0
     
     xmin, xmax, ymin, ymax = bbox  # Разбор полного bbox
-    delta_y = ymax - ymin  # Полный диапазон Y
+    delta_x = xmax - xmin  # Полный диапазон X
     
     for i in range(num_segments):
         print(i)
-        start_row = i * step
-        end_row = min((i + 1) * step, height)
-        segment = image[start_row:end_row, :]
+        start_col = i * step
+        end_col = min((i + 1) * step, width)
+        segment = image[:, start_col:end_col]
         
-        if segment.shape[0] == 0:
+        if segment.shape[1] == 0:
             break
         # segment = add_scale_bar(segment, left_margin_percent=0.1)
         segment = cv2.cvtColor(segment, cv2.COLOR_BGR2RGB)
         
-        # Расчёт extent для сегмента с Y, увеличивающейся вниз
-        start_frac = start_row / height
-        end_frac = end_row / height
-        y_top = ymin + start_frac * delta_y  # Y верхней границы (меньшее значение)
-        y_bottom = ymin + end_frac * delta_y  # Y нижней границы (большее значение)
-        segment_extent = (int(xmin / 1000), int(xmax / 1000), int(y_bottom / 1000), int(y_top / 1000))
+        # Расчёт extent для сегмента с X, увеличивающейся вправо
+        start_frac = start_col / width
+        end_frac = end_col / width
+        x_left = xmin + start_frac * delta_x  # X левой границы (меньшее значение)
+        x_right = xmin + end_frac * delta_x  # X правой границы (большее значение)
+        segment_extent = (int(x_left / 1000), int(x_right / 1000), int(ymax / 1000), int(ymin / 1000))
         
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -58,17 +59,16 @@ def scan_and_save_images(image: np.ndarray,
         ax.imshow(segment, extent=segment_extent, origin='upper')
         
         ax.tick_params(
-            axis='y', direction='in', pad=-20, length=5, colors='white', labelcolor='black',
-            labelleft=True,
-            labelrotation=90
+            axis='x', direction='in', pad=-20, length=5, colors='white', labelcolor='black',
+            labelbottom=True
         )
-        for label in ax.get_yticklabels():
+        for label in ax.get_xticklabels():
             label.set_ha('center')
             label.set_va('center')
             label.set_path_effects([patheffects.withStroke(linewidth=3, foreground='white')])
-        ax.xaxis.set_visible(False)
-        ax.get_yticklabels()[0].set_visible(False)
-        ax.get_yticklabels()[-1].set_visible(False)
+        ax.yaxis.set_visible(False)
+        ax.get_xticklabels()[0].set_visible(False)
+        ax.get_xticklabels()[-1].set_visible(False)
         # Сохранение
         filename = f"{prefix}{i + 1}.png"
         filepath = output_path / filename
