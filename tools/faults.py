@@ -48,9 +48,9 @@ class Faults:
 
     def compute_radius(self):
         d_sgm = 6.75  # MPa
-        self.df["r"] = self._get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
+        self.df["r"] = self.get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
     
-    def get_circles(self):
+    def get_circles(self, threshold=0):
         df = self.df[self.df["r"] > 0]
         x = df["x"].to_numpy()
         y = df["y"].to_numpy()
@@ -84,7 +84,7 @@ class Faults:
         return obj
 
     @staticmethod
-    def _get_disk_radius(m, d_sgm=1.0):
+    def get_disk_radius(m, d_sgm=1.0):
         return np.cbrt(7 / (16 * 6.75)) * 10 ** (0.5 * (m + 6)) * 10 ** (-2)
 
 
