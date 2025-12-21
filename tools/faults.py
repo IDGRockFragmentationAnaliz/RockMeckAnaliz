@@ -51,7 +51,7 @@ class Faults:
         self.df["r"] = self.get_disk_radius(self.df["magnitude"].to_numpy(), d_sgm)
     
     def get_circles(self, threshold=0):
-        df = self.df[self.df["r"] > 0]
+        df = self.df[self.df["r"] > threshold]
         x = df["x"].to_numpy()
         y = df["y"].to_numpy()
         h = df["depth"].to_numpy() * 1000
@@ -62,8 +62,8 @@ class Faults:
         centers = np.column_stack((x, y, h))
         return centers, normals, radii
     
-    def compute_horizontal_cut(self, h1):
-        centers, normals, radii = self.get_circles()
+    def compute_horizontal_cut(self, h1, threshold=0):
+        centers, normals, radii = self.get_circles(threshold)
         points1, points2 = circle_intersect_horizontal_plane(h1, centers, normals, 3 * radii)
         point_matrix = np.column_stack((points1, points2))
         np.save('./temp/point_matrix.npy', point_matrix)
