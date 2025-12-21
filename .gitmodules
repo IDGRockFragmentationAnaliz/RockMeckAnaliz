@@ -1,0 +1,3 @@
+[submodule "pyrocksegmentation"]
+	path = pyrocksegmentation
+	url = https://github.com/IDGRockFragmentationAnaliz/pyrocksegmentation.git
