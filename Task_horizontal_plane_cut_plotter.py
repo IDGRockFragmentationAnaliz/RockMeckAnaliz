@@ -36,14 +36,19 @@ def main():
         cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), int(10*scale+1))
     
     from pyrocksegmentation.basic_segmentator import Segmentator
+    from pyrocksegmentation import Extractor
+    
     image1d,_,_ = cv2.split(image)
     segmentator = Segmentator(image1d)
-    segmentator.run(extend=False)
+    market_image = segmentator.run(extend=False)
+    stat_shapes = Extractor(market_image).extruct()
     
-    image = segmentator.get_segment_image()
+    np.save('./temp/stat_shapes.npy', stat_shapes)
+    
+    #image = segmentator.get_segment_image()
     #print(image.shape)
-    scan_and_save_images(image, step=5000, bbox=bbox)
-
+    #scan_and_save_images(image, step=5000, bbox=bbox)
+    
 
 
 #def y_line(image, y_target):

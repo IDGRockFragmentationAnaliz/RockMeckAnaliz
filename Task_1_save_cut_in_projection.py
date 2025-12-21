@@ -24,7 +24,8 @@ def vectors():
     )
     faults.to_projection(projection)
     faults.compute_radius()
-    faults.compute_horizontal_cut(5000)
+    #print(faults.df["r"].to_numpy())
+    faults.compute_horizontal_cut(5000, threshold=100)
 
 
     
