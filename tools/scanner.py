@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+
+from sympy import true
+
 from .scale_bar import add_scale_bar
 import cv2
 from matplotlib import patheffects
@@ -53,31 +56,40 @@ def scan_and_save_images(image: np.ndarray,
         x_right = xmin + end_frac * delta_x  # X правой границы (большее значение)
         segment_extent = (int(x_left / 1000), int(x_right / 1000), int(ymax / 1000), int(ymin / 1000))
         
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-        
-        ax.imshow(segment, extent=segment_extent, origin='upper')
-        
-        ax.tick_params(
-            axis='x', direction='in', pad=-20, length=5, colors='white', labelcolor='black',
-            labelbottom=True
-        )
-        for label in ax.get_xticklabels():
-            label.set_ha('center')
-            label.set_va('center')
-            label.set_path_effects([patheffects.withStroke(linewidth=3, foreground='white')])
-        ax.yaxis.set_visible(False)
-        ax.get_xticklabels()[0].set_visible(False)
-        ax.get_xticklabels()[-1].set_visible(False)
         # Сохранение
         filename = f"{prefix}{i + 1}.png"
         filepath = output_path / filename
-        try:
-            plt.savefig(str(filepath), bbox_inches='tight', pad_inches=0, dpi=300)
-            saved_count += 1
-        except Exception as e:
-            print(f"Ошибка сохранения {filename}: {e}")
-        finally:
-            plt.close(fig)  # Освобождение ресурсов
-    
+        #save_matplotlib(segment, segment_extent, filepath)
+        save_original(segment, filepath)
+        saved_count += 1
     return saved_count
+
+
+def save_original(segment, filepath):
+    cv2.imwrite(str(filepath), segment)
+
+def save_matplotlib(segment, segment_extent, filepath):
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    
+    ax.imshow(segment, extent=segment_extent, origin='upper')
+    
+    ax.tick_params(
+        axis='x', direction='in', pad=-20, length=5, colors='white', labelcolor='black',
+        labelbottom=True
+    )
+    for label in ax.get_xticklabels():
+        label.set_ha('center')
+        label.set_va('center')
+        label.set_path_effects([patheffects.withStroke(linewidth=3, foreground='white')])
+    ax.yaxis.set_visible(False)
+    ax.get_xticklabels()[0].set_visible(False)
+    ax.get_xticklabels()[-1].set_visible(False)
+    
+    try:
+        plt.savefig(str(filepath), bbox_inches='tight', pad_inches=0, dpi=300)
+    except Exception as e:
+        print(f"Ошибка сохранения {filename}: {e}")
+    finally:
+        plt.close(fig)  # Освобождение ресурсов
+    return true

@@ -14,8 +14,13 @@ def main():
     xmax: float = np.max(np.column_stack((points1[:, 0], points2[:,0])))
     ymin: float = np.min(np.column_stack((points1[:, 1], points2[:, 1])))
     ymax: float = np.max(np.column_stack((points1[:, 1], points2[:, 1])))
+    #
+    xmin = 117000
+    xmax = 124000
+    ymin = -5000
+    ymax = -1000
     
-    scale = 0.25
+    scale = 4
     height, width = int((ymax - ymin)*scale), int((xmax - xmin)*scale)
     bbox = (xmin, xmax, ymin, ymax)
     
@@ -33,21 +38,26 @@ def main():
         x2 = int((p2[0] - xmin) / (xmax - xmin) * (width - 1))
         y2 = int((p2[1] - ymin) / (ymax - ymin) * (height - 1))
         # Отрисовка линии (белый цвет, толщина 1)
-        cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), int(10*scale+1))
+        cv2.line(image, (x1, y1), (x2, y2), (255, 255, 255), 2, cv2.LINE_8)
+        
+    
     
     from pyrocksegmentation.basic_segmentator import Segmentator
     from pyrocksegmentation import Extractor
     
     image1d,_,_ = cv2.split(image)
     segmentator = Segmentator(image1d)
+    
     market_image = segmentator.run(extend=False)
     stat_shapes = Extractor(market_image).extruct()
     
+    #print(stat_shapes)
+    #exit()
     np.save('./temp/stat_shapes.npy', stat_shapes)
     
     #image = segmentator.get_segment_image()
     #print(image.shape)
-    #scan_and_save_images(image, step=5000, bbox=bbox)
+    #scan_and_save_images(image, step=40000, bbox=bbox)
     
 
 
